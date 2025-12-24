@@ -41,7 +41,7 @@ jobs:
       - name: Run Preprocessing Script
         run: |
           python preprocessing/automate_surya.py \
-            --input "namadataset_raw/heart_disease.csv" \
+            --input "datasets/heart_disease.csv" \
             --output "preprocessing/namadataset_preprocessing"
 
       # 5. Commit dan Push Hasil (Syarat Advance: Mengembalikan Dataset Terbaru)
