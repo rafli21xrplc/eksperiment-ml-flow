@@ -14,7 +14,6 @@ jobs:
   preprocess:
     runs-on: ubuntu-latest
     
-    # Memberikan izin kepada bot untuk melakukan push (write) balik ke repo
     permissions:
       contents: write
 
