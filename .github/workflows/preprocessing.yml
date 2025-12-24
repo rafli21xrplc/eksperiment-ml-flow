@@ -1,0 +1,63 @@
+name: Data Preprocessing Pipeline
+
+# Trigger: Jalan otomatis saat push ke branch main
+# Terutama jika ada perubahan di data mentah atau script python
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'namadataset/**'
+      - 'preprocessing/automate_surya.py'
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+    
+    # Memberikan izin kepada bot untuk melakukan push (write) balik ke repo
+    permissions:
+      contents: write
+
+    steps:
+      # 1. Checkout Repository (Ambil kode terbaru)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup Python Environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # 3. Install Dependencies
+      # Menginstall library yang di-import di automate_surya.py
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy scikit-learn
+
+      # 4. Jalankan Script Preprocessing
+      # Pastikan nama folder sudah direname sesuai struktur di atas
+      - name: Run Preprocessing Script
+        run: |
+          python preprocessing/automate_surya.py \
+            --input "namadataset_raw/heart_disease.csv" \
+            --output "preprocessing/namadataset_preprocessing"
+
+      # 5. Commit dan Push Hasil (Syarat Advance: Mengembalikan Dataset Terbaru)
+      - name: Commit and Push Processed Data
+        run: |
+          # Konfigurasi identitas bot git
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          
+          # Tambahkan file hasil preprocessing ke staging area
+          git add preprocessing/namadataset_preprocessing/train.csv
+          git add preprocessing/namadataset_preprocessing/test.csv
+          
+          # Commit perubahan (jika ada data baru/berubah)
+          # "|| echo..." mencegah error jika hasil sama persis (tidak ada perubahan)
+          git commit -m "Auto-update processed dataset by GitHub Actions" || echo "No changes to commit"
+          
+          # Push kembali ke repository
+          git push
